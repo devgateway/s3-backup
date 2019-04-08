@@ -73,6 +73,15 @@ run_prepare() {
     done
 }
 
+run_restore() {
+    local FULL_DIR="$(find_backup full)"
+
+    mariabackup \
+        --copy-back \
+        --verbose \
+        --target-dir="$FULL_DIR"
+}
+
 case "$1" in
     full)
         run_backup_full
