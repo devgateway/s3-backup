@@ -114,6 +114,12 @@ EOF
     exit 2
 }
 
+trim_backup() {
+    find "$1" -type f -iregex \
+        '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' \
+        -delete
+}
+
 case "$1" in
     full)
         run_backup_full
