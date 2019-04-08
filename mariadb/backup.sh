@@ -82,6 +82,38 @@ run_restore() {
         --target-dir="$FULL_DIR"
 }
 
+show_usage() {
+    cat >&2 <<EOF
+$0 - MariaDB backup/restore helper script
+
+SYNOPSIS
+
+$0 full|inc|prepare|restore
+
+POSITIONAL ARGUMENT
+
+full
+        Full backup.
+
+inc
+        Incremental backup (prior full or incremental backup required).
+
+prepare
+        Apply all incremental backups to the base one (overwrites files).
+
+restore
+        Restore previously prepared backup.
+
+ENVIRONMENT
+
+BACKUP_ROOT[=${BACKUP_ROOT}]
+
+        Base for all backup subdirectories.
+
+EOF
+    exit 2
+}
+
 case "$1" in
     full)
         run_backup_full
