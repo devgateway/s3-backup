@@ -59,14 +59,12 @@ run_prepare() {
 
     mariabackup \
         --prepare \
-        --verbose \
         --apply-log-only \
         --target-dir="$FULL_DIR"
 
     for INC_DIR in $(find_backup inc); do
         mariabackup \
             --prepare \
-            --verbose \
             --apply-log-only \
             --target-dir="$FULL_DIR" \
             --incremental-dir="$INC_DIR"
@@ -78,7 +76,6 @@ run_restore() {
 
     mariabackup \
         --copy-back \
-        --verbose \
         --target-dir="$FULL_DIR"
 }
 
