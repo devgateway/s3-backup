@@ -28,7 +28,7 @@ find_backup() {
 }
 
 create_backup_dir() {
-    local DIR="$BACKUP_ROOT/$(date +%Y-%m-%d_%T)_$1"
+    local DIR="$BACKUP_ROOT/$(date +%s)_$1"
 
     mkdir "$DIR"
     echo "$DIR"
