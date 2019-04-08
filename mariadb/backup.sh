@@ -54,6 +54,25 @@ run_backup_inc() {
         --incremental-basedir="$LAST_DIR"
 }
 
+run_prepare() {
+    local FULL_DIR="$(find_backup full)"
+
+    mariabackup \
+        --prepare \
+        --verbose \
+        --apply-log-only \
+        --target-dir="$FULL_DIR"
+
+    for INC_DIR in $(find_backup inc); do
+        mariabackup \
+            --prepare \
+            --verbose \
+            --apply-log-only \
+            --target-dir="$FULL_DIR" \
+            --incremental-dir="$INC_DIR"
+    done
+}
+
 case "$1" in
     full)
         run_backup_full
