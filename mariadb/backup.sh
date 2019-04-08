@@ -121,6 +121,9 @@ case "$1" in
     inc)
         run_backup_inc
         ;;
+    prepare)
+        run_prepare
+        ;;
     restore)
         run_restore
         ;;
