@@ -35,12 +35,12 @@ create_backup_dir() {
 }
 
 run_backup() {
-	local OUTPUT="$(mariabackup --backup $@ 2>&1)"
-	local RC=$?
-	if [ $RC -ne 0 ]; then
-		echo "$OUTPUT" >&2
-		exit $RC
-	fi
+    local OUTPUT="$(mariabackup --backup $@ 2>&1)"
+    local RC=$?
+    if [ $RC -ne 0 ]; then
+        echo "$OUTPUT" >&2
+        exit $RC
+    fi
 }
 
 run_backup_full() {
@@ -48,14 +48,14 @@ run_backup_full() {
 
     find "$BACKUP_ROOT" -mindepth 1 -delete
     FULL_DIR="$(create_backup_dir full)"
-	run_backup --target-dir="$FULL_DIR"
+    run_backup --target-dir="$FULL_DIR"
 }
 
 run_backup_inc() {
     local LAST_DIR="$(find_backup last)"
     local INC_DIR="$(create_backup_dir inc)"
 
-	run_backup --target-dir="$INC_DIR" --incremental-basedir="$LAST_DIR"
+    run_backup --target-dir="$INC_DIR" --incremental-basedir="$LAST_DIR"
 }
 
 run_prepare() {
