@@ -15,7 +15,7 @@ find_backup() {
         last)
             CMD='ls -1dr "$TEMP_ROOT"/* | head -n 1'
             ;;
-        inc)
+        incr)
             CMD='ls -1d "$TEMP_ROOT"/* | tail -n +2'
             ;;
     esac
@@ -55,7 +55,7 @@ run_prepare() {
         --apply-log-only \
         --target-dir="$FULL_DIR"
 
-    for INC_DIR in $(find_backup inc); do
+    for INC_DIR in $(find_backup incr); do
         mariabackup \
             --prepare \
             --apply-log-only \
@@ -65,12 +65,13 @@ run_prepare() {
 }
 
 case "$1" in
-    full)
-        find "$TEMP_ROOT" -mindepth 1 -delete
-        run_backup full
-        ;;
-    inc)
-        run_backup inc --incremental-basedir="$(find_backup last)"
+    backup)
+        if [ -n "$(find /var/spool/backup -mindepth 1 -maxdepth 1 -type d -mtime +$(($2 - 1)) -print -quit)" ]; then
+            find "$TEMP_ROOT" -mindepth 1 -delete
+            run_backup full
+        else
+            run_backup incr --incremental-basedir="$(find_backup last)"
+        fi
         ;;
     prepare)
         run_prepare
@@ -84,15 +85,12 @@ $0 - MariaDB backup/restore helper script
 
 SYNOPSIS
 
-$0 full|inc|prepare|restore
+$0 (backup D)|prepare|restore
 
 POSITIONAL ARGUMENT
 
-full
-        Full backup.
-
-inc
-        Incremental backup (prior full or incremental backup required).
+backup
+        Run backup: full every D days, otherwise incremental. D must be greater or equal to 2.
 
 prepare
         Apply all incremental backups to the base one (overwrites files).
