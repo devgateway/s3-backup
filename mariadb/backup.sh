@@ -47,17 +47,6 @@ run_backup() {
     find "$1" -type f -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' -delete
 }
 
-run_backup_full() {
-    find "$BACKUP_ROOT" -mindepth 1 -delete
-    run_backup full
-}
-
-run_backup_inc() {
-    local LAST_DIR="$(find_backup last)"
-
-    run_backup inc --incremental-basedir="$LAST_DIR"
-}
-
 run_prepare() {
     local FULL_DIR="$(find_backup full)"
 
@@ -73,14 +62,6 @@ run_prepare() {
             --target-dir="$FULL_DIR" \
             --incremental-dir="$INC_DIR"
     done
-}
-
-run_restore() {
-    local FULL_DIR="$(find_backup full)"
-
-    mariabackup \
-        --copy-back \
-        --target-dir="$FULL_DIR"
 }
 
 show_usage() {
@@ -116,16 +97,17 @@ EOF
 }
 case "$1" in
     full)
-        run_backup_full
+        find "$BACKUP_ROOT" -mindepth 1 -delete
+        run_backup full
         ;;
     inc)
-        run_backup_inc
+        run_backup inc --incremental-basedir="$(find_backup last)"
         ;;
     prepare)
         run_prepare
         ;;
     restore)
-        run_restore
+        mariabackup --copy-back --target-dir="$(find_backup full)"
         ;;
     *)
         show_usage
