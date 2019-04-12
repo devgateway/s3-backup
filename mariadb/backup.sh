@@ -2,7 +2,8 @@
 # MariaDB backup/restore helper
 # Copyright 2019, Development Gateway, GPL3+
 
-: ${BACKUP_ROOT:=/var/spool/backup}
+: ${BACKUP_ROOT:=/var/tmp/mariadb-backup}
+: ${OUTPUT_DIR:=/var/spool/backup}
 
 find_backup() {
     local CMD DIRS
@@ -27,35 +28,34 @@ find_backup() {
     echo "$DIRS"
 }
 
-create_backup_dir() {
-    local DIR="$BACKUP_ROOT/$(date +%s)_$1"
-
-    mkdir "$DIR"
-    echo "$DIR"
-}
-
 run_backup() {
-    local OUTPUT="$(mariabackup --backup $@ 2>&1)"
-    local RC=$?
+    local BASE_NAME, TARGET_DIR, OUTPUT, RC
+
+    BASE_NAME="$(date +%s)_$1"
+    TARGET_DIR="$BACKUP_ROOT/$BASE_NAME"
+    shift
+
+    mkdir "$TARGET_DIR"
+    OUTPUT="$(mariabackup --backup --target-dir="$TARGET_DIR" $@ 2>&1)"
+    RC=$?
     if [ $RC -ne 0 ]; then
         echo "$OUTPUT" >&2
         exit $RC
     fi
+
+    tar -C "$TARGET_DIR" -cf "$OUTPUT_DIR/$BASE_NAME.tar" .
+    find "$1" -type f -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' -delete
 }
 
 run_backup_full() {
-    local FULL_DIR
-
     find "$BACKUP_ROOT" -mindepth 1 -delete
-    FULL_DIR="$(create_backup_dir full)"
-    run_backup --target-dir="$FULL_DIR"
+    run_backup full
 }
 
 run_backup_inc() {
     local LAST_DIR="$(find_backup last)"
-    local INC_DIR="$(create_backup_dir inc)"
 
-    run_backup --target-dir="$INC_DIR" --incremental-basedir="$LAST_DIR"
+    run_backup inc --incremental-basedir="$LAST_DIR"
 }
 
 run_prepare() {
@@ -114,13 +114,6 @@ BACKUP_ROOT[=${BACKUP_ROOT}]
 EOF
     exit 1
 }
-
-trim_backup() {
-    find "$1" -type f -iregex \
-        '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' \
-        -delete
-}
-
 case "$1" in
     full)
         run_backup_full
