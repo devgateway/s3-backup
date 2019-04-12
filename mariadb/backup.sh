@@ -2,7 +2,7 @@
 # MariaDB backup/restore helper
 # Copyright 2019, Development Gateway, GPL3+
 
-: ${BACKUP_ROOT:=/var/tmp/mariadb-backup}
+: ${TEMP_ROOT:=/var/tmp/mariadb-backup}
 : ${OUTPUT_DIR:=/var/spool/backup}
 
 find_backup() {
@@ -10,19 +10,19 @@ find_backup() {
 
     case "$1" in
         full)
-            CMD='ls -1d "$BACKUP_ROOT"/* | head -n 1'
+            CMD='ls -1d "$TEMP_ROOT"/* | head -n 1'
             ;;
         last)
-            CMD='ls -1dr "$BACKUP_ROOT"/* | head -n 1'
+            CMD='ls -1dr "$TEMP_ROOT"/* | head -n 1'
             ;;
         inc)
-            CMD='ls -1d "$BACKUP_ROOT"/* | tail -n +2'
+            CMD='ls -1d "$TEMP_ROOT"/* | tail -n +2'
             ;;
     esac
 
     DIRS="$(eval $CMD)"
     if [ -z "$DIRS" ]; then
-        echo "Backup '$1' not found at $BACKUP_ROOT" >&2
+        echo "Backup '$1' not found at $TEMP_ROOT" >&2
         exit 1
     fi
     echo "$DIRS"
@@ -32,7 +32,7 @@ run_backup() {
     local BASE_NAME, TARGET_DIR, OUTPUT, RC
 
     BASE_NAME="$(date +%s)_$1"
-    TARGET_DIR="$BACKUP_ROOT/$BASE_NAME"
+    TARGET_DIR="$TEMP_ROOT/$BASE_NAME"
     shift
 
     mkdir "$TARGET_DIR"
@@ -64,8 +64,22 @@ run_prepare() {
     done
 }
 
-show_usage() {
-    cat >&2 <<EOF
+case "$1" in
+    full)
+        find "$TEMP_ROOT" -mindepth 1 -delete
+        run_backup full
+        ;;
+    inc)
+        run_backup inc --incremental-basedir="$(find_backup last)"
+        ;;
+    prepare)
+        run_prepare
+        ;;
+    restore)
+        mariabackup --copy-back --target-dir="$(find_backup full)"
+        ;;
+    *)
+        cat >&2 <<EOF
 $0 - MariaDB backup/restore helper script
 
 SYNOPSIS
@@ -88,28 +102,15 @@ restore
 
 ENVIRONMENT
 
-BACKUP_ROOT[=${BACKUP_ROOT}]
+OUTPUT_DIR[=${OUTPUT_DIR}]
 
-        Base for all backup subdirectories.
+        Directory where tar archives will be stored.
+
+TEMP_ROOT[=${TEMP_ROOT}]
+
+        Storage for backup metadata and temporary data.
 
 EOF
-    exit 1
-}
-case "$1" in
-    full)
-        find "$BACKUP_ROOT" -mindepth 1 -delete
-        run_backup full
-        ;;
-    inc)
-        run_backup inc --incremental-basedir="$(find_backup last)"
-        ;;
-    prepare)
-        run_prepare
-        ;;
-    restore)
-        mariabackup --copy-back --target-dir="$(find_backup full)"
-        ;;
-    *)
-        show_usage
+        exit 1
         ;;
 esac
