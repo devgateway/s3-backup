@@ -29,7 +29,7 @@ find_backup() {
 }
 
 run_backup() {
-    local BASE_NAME, TARGET_DIR, OUTPUT, RC
+    local BASE_NAME TARGET_DIR OUTPUT RC
 
     BASE_NAME="$(date +%s)_$1"
     TARGET_DIR="$TEMP_ROOT/$BASE_NAME"
