@@ -10,7 +10,7 @@ find_backup() {
 
     case "$1" in
         full)
-            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]* | head -n 1'
+            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]*full | head -n 1'
             ;;
         last)
             CMD='ls -1dr "$TEMP_ROOT"/[[:digit:]]* | head -n 1'
