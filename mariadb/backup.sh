@@ -10,13 +10,13 @@ find_backup() {
 
     case "$1" in
         full)
-            CMD='ls -1d "$TEMP_ROOT"/* | head -n 1'
+            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]* | head -n 1'
             ;;
         last)
-            CMD='ls -1dr "$TEMP_ROOT"/* | head -n 1'
+            CMD='ls -1dr "$TEMP_ROOT"/[[:digit:]]* | head -n 1'
             ;;
         incr)
-            CMD='ls -1d "$TEMP_ROOT"/* | tail -n +2'
+            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]* | tail -n +2'
             ;;
     esac
 
