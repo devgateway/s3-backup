@@ -21,11 +21,11 @@ find_backup() {
     esac
 
     DIRS="$(eval $CMD)"
-    if [ -z "$DIRS" ]; then
+    if [ -n "$DIRS" ]; then
+        echo "$DIRS"
+    else
         echo "Backup '$1' not found at $TEMP_ROOT" >&2
-        exit 1
     fi
-    echo "$DIRS"
 }
 
 run_backup() {
@@ -49,6 +49,9 @@ run_backup() {
 
 run_prepare() {
     local FULL_DIR="$(find_backup full)"
+    if [ -z "$FULL_DIR" ]; then
+        exit 1
+    fi
 
     mariabackup \
         --prepare \
@@ -70,14 +73,22 @@ case "$1" in
             find "$TEMP_ROOT" -mindepth 1 -delete
             run_backup full
         else
-            run_backup incr --incremental-basedir="$(find_backup last)"
+            DIR="$(find_backup last)"
+            if [ -z "$DIR" ]; then
+                exit 1
+            fi
+            run_backup incr --incremental-basedir="$DIR"
         fi
         ;;
     prepare)
         run_prepare
         ;;
     restore)
-        mariabackup --copy-back --target-dir="$(find_backup full)"
+        DIR="$(find_backup full)"
+        if [ -z "$DIR" ]; then
+            exit 1
+        fi
+        mariabackup --copy-back --target-dir="$DIR"
         ;;
     *)
         cat >&2 <<EOF
