@@ -6,21 +6,20 @@
 : ${OUTPUT_DIR:=/var/spool/backup}
 
 find_backup() {
-    local CMD DIRS
+    local DIRS
 
     case "$1" in
         full)
-            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]*full | head -n 1'
+            DIRS="$(ls -1d "$TEMP_ROOT"/[[:digit:]]*full | head -n 1)"
             ;;
         last)
-            CMD='ls -1dr "$TEMP_ROOT"/[[:digit:]]* | head -n 1'
+            DIRS="$(ls -1dr "$TEMP_ROOT"/[[:digit:]]* | head -n 1)"
             ;;
         incr)
-            CMD='ls -1d "$TEMP_ROOT"/[[:digit:]]* | tail -n +2'
+            DIRS="$(ls -1d "$TEMP_ROOT"/[[:digit:]]* | tail -n +2)"
             ;;
     esac
 
-    DIRS="$(eval $CMD)"
     if [ -n "$DIRS" ]; then
         echo "$DIRS"
     else
