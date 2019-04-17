@@ -68,7 +68,7 @@ run_prepare() {
 
 case "$1" in
     backup)
-        if [ -n "$(find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +$(($2 - 1)) -print -quit)" ]; then
+        if [ -z "$(find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +$(($2 - 1)) -print -quit)" ]; then
             find "$TEMP_ROOT" -mindepth 1 -delete
             run_backup full
         else
