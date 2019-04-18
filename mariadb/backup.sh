@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # MariaDB backup/restore helper
 # Copyright 2019, Development Gateway, GPL3+
 
@@ -33,22 +33,27 @@ find_backup() {
 }
 
 run_backup() {
-    local BASE_NAME TARGET_DIR OUTPUT RC
+    local BASE_NAME TARGET_DIR OUTPUT RC TAR_FILE
 
     BASE_NAME="$(date +%s)_$1"
     TARGET_DIR="$TEMP_ROOT/$BASE_NAME"
     shift
 
     mkdir "$TARGET_DIR"
+    set +e
     OUTPUT="$(mariabackup --backup --target-dir="$TARGET_DIR" $@ 2>&1)"
     RC=$?
+    set -e
     if [ $RC -ne 0 ]; then
         echo "$OUTPUT" >&2
-        exit $RC
+        return $RC
     fi
 
-    tar -C "$TARGET_DIR" -cf "$OUTPUT_DIR/$BASE_NAME.tar" .
+    TAR_FILE="$OUTPUT_DIR/$BASE_NAME.tar"
+    tar -C "$TARGET_DIR" -cf "$TAR_FILE" .
     find "$TARGET_DIR" -type f -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' -delete
+
+    echo "$TAR_FILE"
 }
 
 run_prepare() {
