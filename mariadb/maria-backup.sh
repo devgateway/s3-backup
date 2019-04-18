@@ -2,6 +2,7 @@
 # MariaDB backup/restore helper
 # Copyright 2019, Development Gateway, GPL3+
 
+: ${BACKUP_CYCLE:=14}
 : ${TEMP_ROOT:=/var/tmp/mariadb-backup}
 : ${OUTPUT_DIR:=/var/spool/backup}
 
@@ -79,7 +80,7 @@ run_prepare() {
 case "$1" in
     backup)
         OLD_FULL="$(find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_full$' \
-            -mtime +$(($2 - 1)) -print -quit)"
+            -mtime +$(($BACKUP_CYCLE - 1)) -print -quit)"
         if [ -n "$OLD_FULL" ]; then
             echo "Found old full backups: $(echo "$OLD_FULL" | xargs), cleaning up and running full" >&2
             find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_\(full\|incr\)$' \
@@ -112,12 +113,12 @@ $0 - MariaDB backup/restore helper script
 
 SYNOPSIS
 
-$0 (backup D)|prepare|restore
+$0 backup|prepare|restore
 
 POSITIONAL ARGUMENT
 
 backup
-        Run backup: full every D days, otherwise incremental. D must be greater or equal to 2.
+        Run backup: full every BACKUP_CYCLE days, otherwise incremental.
 
 prepare
         Apply all incremental backups to the base one (overwrites files).
@@ -126,6 +127,10 @@ restore
         Restore previously prepared backup.
 
 ENVIRONMENT
+
+BACKUP_CYCLE[=${BACKUP_CYCLE}]
+
+        Make full backup once in this many days; must be greater or equal to 2.
 
 OUTPUT_DIR[=${OUTPUT_DIR}]
 
