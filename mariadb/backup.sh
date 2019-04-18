@@ -10,13 +10,18 @@ find_backup() {
 
     case "$1" in
         full)
-            DIRS="$(ls -1d "$TEMP_ROOT"/[[:digit:]]*full | head -n 1)"
+            DIRS="$(find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_full$' \
+                | sort -r \
+                | head -n 1)"
             ;;
         last)
-            DIRS="$(ls -1dr "$TEMP_ROOT"/[[:digit:]]* | head -n 1)"
+            DIRS="$(find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_\(full\|incr\)$' \
+                | sort -r \
+                | head -n 1)"
             ;;
         incr)
-            DIRS="$(ls -1d "$TEMP_ROOT"/[[:digit:]]* | tail -n +2)"
+            DIRS="$(find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_incr$' \
+                | sort)"
             ;;
     esac
 
