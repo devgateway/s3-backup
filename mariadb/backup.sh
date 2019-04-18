@@ -73,15 +73,22 @@ run_prepare() {
 
 case "$1" in
     backup)
-        if [ -n "$(find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +$(($2 - 1)) -print -quit)" ]; then
-            find "$TEMP_ROOT" -mindepth 1 -delete
+        OLD_FULL="$(find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_full$' \
+            -mtime +$(($2 - 1)) -print -quit)"
+        if [ -n "$OLD_FULL" ]; then
+            echo "Found old full backups: $(echo "$OLD_FULL" | xargs), cleaning up and running full" >&2
+            find "$TEMP_ROOT" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9]+_\(full\|incr\)$' \
+                -execdir rm -rf '{}' ';'
             run_backup full
         else
             DIR="$(find_backup last)"
-            if [ -z "$DIR" ]; then
-                exit 1
+            if [ -n "$DIR" ]; then
+                echo Doing incr backup based on "$DIR" >&2
+                run_backup incr --incremental-basedir="$DIR"
+            else
+                echo Last backup not found, doing full >&2
+                run_backup full
             fi
-            run_backup incr --incremental-basedir="$DIR"
         fi
         ;;
     prepare)
