@@ -14,6 +14,7 @@ if [ ! -f "$TAR_FILE" ]; then
   exit 1
 fi
 
+echo Starting upload >&2
 glacier-cmd upload "$VAULT" "$TAR_FILE" >/dev/null 2>&1
 RC=$?
 
