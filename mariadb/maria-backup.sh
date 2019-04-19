@@ -52,7 +52,7 @@ run_backup() {
 
     TAR_FILE="$OUTPUT_DIR/$BASE_NAME.tar"
     tar -C "$TARGET_DIR" -cf "$TAR_FILE" .
-    find "$TARGET_DIR" -type f -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\)$' -delete
+    find "$TARGET_DIR" -type f -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl|ibd\)$' -delete
 
     echo "$TAR_FILE"
 }
