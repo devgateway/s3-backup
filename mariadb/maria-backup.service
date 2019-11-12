@@ -1,0 +1,10 @@
+[Unit]
+Description=MariaDB backup
+BindsTo=mariadb.service
+After=mariadb.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/glacier.sh
+User=mysql
+Environment=VAULT=MY_VAULT GLACIER_DIR=/var/spool/glacier
