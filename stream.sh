@@ -25,5 +25,6 @@ if [ ! "$EXPECTED_SIZE" -gt 0 ]; then
   exit 1
 fi
 
-FILE_NAME="files-$(basename "$1" | tr -c '[:alnum:]' _)-$(date +%F).tar"
-tar -cC "$1" . | aws s3 cp - "s3://$S3_BUCKET_NAME/$FILE_NAME" --expected-size "$EXPECTED_SIZE"
+FILE_NAME="$(basename "$1" | tr -c '[:alnum:]' _)-$(date +%F).tar"
+S3_PATH="s3://$S3_BUCKET_NAME/wp/$FILE_NAME"
+tar -cC "$1" . | aws s3 cp - "$S3_PATH" --expected-size "$EXPECTED_SIZE"
