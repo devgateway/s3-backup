@@ -1,0 +1,8 @@
+[Unit]
+Description=MySQL DB %I backup to S3
+After=network.target
+Requisite=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/s3_backup_dir.sh %I
