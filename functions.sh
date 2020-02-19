@@ -7,3 +7,7 @@ check_vars() {
     fi
   done
 }
+
+s3_escape() {
+  tr -c "[:alnum:]-_.*'()!" _
+}
