@@ -43,7 +43,7 @@ $(BUILDDIR):
 
 $(BUILDDIR)/%.sh: %.sh | $(BUILDDIR)
 	sed \
-	  -e 's|[^[:space:]]\+\(functions\.sh\)$$|$(LIBDIR)/\1|g' \
+	  -e 's|[^[:space:]]*\(functions\.sh\)$$|$(LIBDIR)/\1|g' \
 	  $< > $@
 
 $(BUILDDIR)/%.service: %.service | $(BUILDDIR)
