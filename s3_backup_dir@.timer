@@ -6,5 +6,5 @@ WantedBy=timers.target
 
 [Timer]
 OnCalendar=weekly
-AccuracySec=1h
+AccuracySec=2h
 Persistent=true
