@@ -42,14 +42,10 @@ $(BUILDDIR):
 	-mkdir $(BUILDDIR)
 
 $(BUILDDIR)/%.sh: %.sh | $(BUILDDIR)
-	sed \
-	  -e 's|[^[:space:]]*\(functions\.sh\)$$|$(LIBDIR)/\1|g' \
-	  $< > $@
+	sed -e 's|[^[:space:]]*\(functions\.sh\)$$|$(LIBDIR)/\1|g' $< > $@
 
 $(BUILDDIR)/%.service: %.service | $(BUILDDIR)
-	sed \
-	  -e 's|\([^=[:space:]]\+\.sh\)|$(BINDIR)/\1|g' \
-	  $< > $@
+	sed -e 's|\([^=[:space:]]\+\.sh\)|$(BINDIR)/\1|g' $< > $@
 
 .PHONY: clean
 clean:
