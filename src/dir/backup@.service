@@ -4,4 +4,4 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/s3_backup_dir.sh %I
+ExecStart=backup.sh %I

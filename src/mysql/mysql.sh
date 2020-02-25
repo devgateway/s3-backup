@@ -1,5 +1,5 @@
 #!/bin/bash
-source functions.sh
+source @libexecdir@/functions.sh
 
 if ! check_vars S3_BUCKET_NAME S3_PREFIX 1; then
   exit 1

@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up directory %I to S3
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+OnCalendar=weekly
+AccuracySec=1h
+Persistent=true
