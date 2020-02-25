@@ -14,15 +14,20 @@ BINDIR=$(LIBDIR)
 UNITDIR=/etc/systemd/system
 
 # temporary dir for scripts with absolute paths in them
-BUILDDIR=build
+BUILDDIR=dist
 
 # overridable install binaries defined
 INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=$(INSTALL) -m 644
 
+# scripts and units
+SCRIPTS=$(filter-out functions.sh,$(wildcard *.sh))
+SERVICES=$(wildcard *.service)
+TIMERS=$(wildcard *.timer)
+
 .PHONY: all
-all: $(patsubst backup%,$(BUILDDIR)/$(BASENAME)%,$(wildcard backup*))
+all: $(addprefix $(BUILDDIR)/,$(SCRIPTS) $(SERVICES))
 
 .PHONY: install
 install: | all
@@ -36,10 +41,14 @@ install: | all
 $(BUILDDIR):
 	-mkdir $(BUILDDIR)
 
-$(BUILDDIR)/$(BASENAME)%: backup% | $(BUILDDIR)
+$(BUILDDIR)/%.sh: %.sh | $(BUILDDIR)
 	sed \
-	  -e 's|backup\(\.sh\)|$(BINDIR)\1|g' \
-	  -e 's|\.\.\(/functions\.sh\)|$(LIBDIR)\1|g' \
+	  -e 's|[^[:space:]]\+\(functions\.sh\)$$|$(LIBDIR)/\1|g' \
+	  $< > $@
+
+$(BUILDDIR)/%.service: %.service | $(BUILDDIR)
+	sed \
+	  -e 's|\([^=[:space:]]\+\.sh\)|$(BINDIR)/\1|g' \
 	  $< > $@
 
 .PHONY: clean

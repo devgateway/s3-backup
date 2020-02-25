@@ -5,4 +5,4 @@ Requisite=mysql.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/s3_backup_dir.sh %I
+ExecStart=s3_backup_mysql.sh %I
