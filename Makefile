@@ -1,16 +1,12 @@
-SUITE=s3_backup
 PREFIX=/usr/local
 
 # function library goes here
-LIBDIR=$(PREFIX)/lib/$(SUITE)
+LIBDIR=$(PREFIX)/lib/s3_backup
 
-# base name without suffix for script and units
-BASENAME=$(SUITE)_$(notdir $(abspath .))
-
-# backup script goes here
+# backup scripts go here
 BINDIR=$(LIBDIR)
 
-# Systemd timer and service go here, at /etc or /usr/lib
+# Systemd timers and services go here, at /etc or /usr/lib
 UNITDIR=/etc/systemd/system
 
 # temporary dir for scripts with absolute paths in them
@@ -32,11 +28,11 @@ all: $(addprefix $(BUILDDIR)/,$(SCRIPTS) $(SERVICES))
 .PHONY: install
 install: | all
 	$(INSTALL) -d $(DESTDIR)$(BINDIR)
+	$(INSTALL_DATA) functions.sh $(DESTDIR)$(LIBDIR)/
+	$(INSTALL_PROGRAM) $(addprefix $(BUILDDIR)/,$(SCRIPTS)) $(DESTDIR)$(BINDIR)/
 	$(INSTALL) -d $(DESTDIR)$(UNITDIR)
-	$(INSTALL_PROGRAM) $(BUILDDIR)/$(BASENAME).sh $(DESTDIR)$(BINDIR)/
-	$(INSTALL_DATA) ../functions.sh $(DESTDIR)$(LIBDIR)/
-	$(INSTALL_DATA) $(BUILDDIR)/$(BASENAME)*.service $(DESTDIR)$(UNITDIR)/
-	$(INSTALL_DATA) $(BUILDDIR)/$(BASENAME)*.timer $(DESTDIR)$(UNITDIR)/
+	$(INSTALL_PROGRAM) $(addprefix $(BUILDDIR)/,$(SERVICES)) $(DESTDIR)$(UNITDIR)/
+	$(INSTALL_DATA) *.timer $(DESTDIR)$(UNITDIR)/
 
 $(BUILDDIR):
 	-mkdir $(BUILDDIR)
