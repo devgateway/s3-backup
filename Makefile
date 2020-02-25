@@ -1,4 +1,4 @@
-PREFIX=/usr/local
+PREFIX:=/usr/local
 
 # function library goes here
 LIBDIR=$(PREFIX)/lib/s3_backup
@@ -7,13 +7,13 @@ LIBDIR=$(PREFIX)/lib/s3_backup
 BINDIR=$(LIBDIR)
 
 # Systemd timers and services go here, at /etc or /usr/lib
-UNITDIR=/etc/systemd/system
+UNITDIR:=/etc/systemd/system
 
 # temporary dir for scripts with absolute paths in them
-BUILDDIR=dist
+BUILDDIR:=dist
 
 # overridable install binaries defined
-INSTALL=install
+INSTALL:=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=$(INSTALL) -m 644
 
@@ -31,7 +31,7 @@ install: | all
 	$(INSTALL_DATA) functions.sh $(DESTDIR)$(LIBDIR)/
 	$(INSTALL_PROGRAM) $(addprefix $(BUILDDIR)/,$(SCRIPTS)) $(DESTDIR)$(BINDIR)/
 	$(INSTALL) -d $(DESTDIR)$(UNITDIR)
-	$(INSTALL_PROGRAM) $(addprefix $(BUILDDIR)/,$(SERVICES)) $(DESTDIR)$(UNITDIR)/
+	$(INSTALL_DATA) $(addprefix $(BUILDDIR)/,$(SERVICES)) $(DESTDIR)$(UNITDIR)/
 	$(INSTALL_DATA) *.timer $(DESTDIR)$(UNITDIR)/
 
 $(BUILDDIR):
