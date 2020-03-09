@@ -4,5 +4,6 @@ After=network.target
 Requisite=mysql.service
 
 [Service]
+User=root
 Type=oneshot
 ExecStart=s3_backup_mysql.sh %I
