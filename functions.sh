@@ -9,5 +9,5 @@ check_vars() {
 }
 
 s3_escape() {
-  tr -c "[:alnum:]-_.*'()!" _
+  tr -c "[:alnum:]-_.*'()!\\n" _
 }
