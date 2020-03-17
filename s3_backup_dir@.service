@@ -1,7 +1,7 @@
 [Unit]
-Description=Directory %I backup to S3
+Description=Directory %f backup to S3
 After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=s3_backup_dir.sh %I
+ExecStart=s3_backup_dir.sh %f
