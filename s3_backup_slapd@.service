@@ -1,0 +1,8 @@
+[Unit]
+Description=OpenLDAP DB %I backup to S3
+After=slapd.target
+Requisite=slapd.service
+
+[Service]
+Type=oneshot
+ExecStart=s3_backup_slapd.sh %I

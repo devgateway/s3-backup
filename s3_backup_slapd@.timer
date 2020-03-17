@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up OpenLDAP DB %I to S3
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+OnCalendar=daily
+AccuracySec=1h
+Persistent=true
