@@ -1,0 +1,9 @@
+[Unit]
+Description=Postgresql DB %I backup to S3
+After=network.target
+Requisite=mysql.service
+
+[Service]
+User=root
+Type=oneshot
+ExecStart=s3_backup_postgres.sh %I
