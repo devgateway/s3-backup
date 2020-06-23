@@ -8,7 +8,7 @@ fi
 
 SUFFIX=.sql.gz
 DUMP_FILE="$(umask 077; mktemp --suffix=$SUFFIX)"
-pg_dump "$1" | gzip > "$DUMP_FILE"
+su -c "pg_dump $1" postgres | gzip > "$DUMP_FILE"
 
 S3_SUBDIR="$(echo "$1" | s3_escape)"
 S3_PATH="s3://$S3_BUCKET_NAME/$S3_PREFIX/$S3_SUBDIR/$(date +%F)$SUFFIX"
