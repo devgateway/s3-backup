@@ -32,6 +32,6 @@ EXPECTED_SIZE=$(($BLOCKS * $BLOCK_SIZE))
 
 SUFFIX=.tar
 S3_SUBDIR="$(basename "$1" | s3_escape)"
-S3_PATH="s3://$S3_BUCKET_NAME/$S3_PREFIX/$S3_SUBDIR/$(date +%F)$SUFFIX"
+S3_PATH="s3://$S3_BUCKET_NAME/$S3_PREFIX/$S3_SUBDIR/$(date +%F_%R)$SUFFIX"
 
 tar -b $BLOCKING_FACTOR -cC "$1" . | aws s3 cp - "$S3_PATH" --expected-size "$EXPECTED_SIZE" --quiet
