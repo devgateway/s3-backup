@@ -1,5 +1,4 @@
 #!/bin/sh -e
-: ${PG_DATA_DIR:=/var/lib/postgresql}
 : ${FULL_BACKUP_PERIOD:=$((60 * 60 * 24 * 7))}
 
 MY_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/$(basename "${0%.*}")"
@@ -32,10 +31,6 @@ do_full_backup() {
 do_incremental_backup() {
   echo "Doing incremental backup"
 }
-
-if [ ! -d "$PG_DATA_DIR" ]; then
-  exit_with_error 2 "Postgres data directory doesn't exist: $PG_DATA_DIR"
-fi
 
 if [ ! -d "$MY_DATA_DIR" ]; then
   mkdir -p "$MY_DATA_DIR"
