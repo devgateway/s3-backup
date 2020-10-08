@@ -1,8 +1,4 @@
 #!/bin/sh -e
-: ${FULL_BACKUP_PERIOD:=$((60 * 60 * 24 * 7))}
-
-MY_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/$(basename "${0%.*}")"
-
 exit_with_error() {
   local RET=$1
   shift
@@ -28,14 +24,12 @@ do_base_backup() {
 do_wal_backup() {
 }
 
-if [ ! -d "$MY_DATA_DIR" ]; then
-  mkdir -p "$MY_DATA_DIR"
-fi
-
 if [ "$1" = "base" ]; then
   echo "Doing base backup"
   do_base_backup
 else
   echo "Doing WAL backup"
+  TIMESTAMP="$(mktemp)"
+  trap "rm -f '$TIMESTAMP'" EXIT
   do_wal_backup
 fi
