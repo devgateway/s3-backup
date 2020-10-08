@@ -13,6 +13,18 @@ exit_with_error() {
   exit $RET
 }
 
+check_vars() {
+  for VAR_NAME in $@; do
+    if eval "test -z \"\$$VAR_NAME\""; then
+      exit_with_error 1 "$VAR_NAME not defined. Required variables are: $@"
+    fi
+  done
+}
+
+s3_escape() {
+  tr -c "[:alnum:]-_.*'()!\\n" _
+}
+
 do_full_backup() {
   echo "Doing full backup"
 }
@@ -22,7 +34,7 @@ do_incremental_backup() {
 }
 
 if [ ! -d "$PG_DATA_DIR" ]; then
-  exit_with_error 1 "Postgres data directory doesn't exist: $PG_DATA_DIR"
+  exit_with_error 2 "Postgres data directory doesn't exist: $PG_DATA_DIR"
 fi
 
 if [ ! -d "$MY_DATA_DIR" ]; then
@@ -30,13 +42,13 @@ if [ ! -d "$MY_DATA_DIR" ]; then
 fi
 
 if [ -e "$LOCK_FILE" ]; then
-  exit_with_error 2 "Lock file exists: $LOCK_FILE"
+  exit_with_error 3 "Lock file exists: $LOCK_FILE"
 else
   touch "$LOCK_FILE"
 fi
 
 if [ -r "$LAST_FULL" ]; then
-  LAST_FULL_BACKUP_TIME="$(cat "$LAST_FULL")"
+  LAST_FULL_BACKUP_TIME="$(stat -c %Y "$LAST_FULL")"
 else
   echo "Full backup never done before"
 fi
