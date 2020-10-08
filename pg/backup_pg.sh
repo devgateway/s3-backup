@@ -24,12 +24,10 @@ s3_escape() {
   tr -c "[:alnum:]-_.*'()!\\n" _
 }
 
-do_full_backup() {
-  echo "Doing full backup"
+do_base_backup() {
 }
 
-do_incremental_backup() {
-  echo "Doing incremental backup"
+do_wal_backup() {
 }
 
 if [ ! -d "$MY_DATA_DIR" ]; then
@@ -48,11 +46,12 @@ else
   echo "Full backup never done before"
 fi
 
-DATE_DIFF=$(($(date +%s) - ${LAST_FULL_BACKUP_TIME:-0}))
-if [ "$DATE_DIFF" -lt "$FULL_BACKUP_PERIOD" ]; then
-  do_incremental_backup
+if [ "$1" = "base" ]; then
+  echo "Doing base backup"
+  do_base_backup
 else
-  do_full_backup
+  echo "Doing WAL backup"
+  do_wal_backup
 fi
 
 rm -f "$LOCK_FILE"
