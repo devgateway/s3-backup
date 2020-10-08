@@ -2,7 +2,6 @@
 : ${FULL_BACKUP_PERIOD:=$((60 * 60 * 24 * 7))}
 
 MY_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/$(basename "${0%.*}")"
-LAST_FULL="$MY_DATA_DIR/last_full"
 
 exit_with_error() {
   local RET=$1
@@ -31,12 +30,6 @@ do_wal_backup() {
 
 if [ ! -d "$MY_DATA_DIR" ]; then
   mkdir -p "$MY_DATA_DIR"
-fi
-
-if [ -r "$LAST_FULL" ]; then
-  LAST_FULL_BACKUP_TIME="$(stat -c %Y "$LAST_FULL")"
-else
-  echo "Full backup never done before"
 fi
 
 if [ "$1" = "base" ]; then
