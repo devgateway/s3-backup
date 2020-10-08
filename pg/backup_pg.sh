@@ -2,7 +2,6 @@
 : ${FULL_BACKUP_PERIOD:=$((60 * 60 * 24 * 7))}
 
 MY_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/$(basename "${0%.*}")"
-LOCK_FILE="$MY_DATA_DIR/lock"
 LAST_FULL="$MY_DATA_DIR/last_full"
 
 exit_with_error() {
@@ -34,12 +33,6 @@ if [ ! -d "$MY_DATA_DIR" ]; then
   mkdir -p "$MY_DATA_DIR"
 fi
 
-if [ -e "$LOCK_FILE" ]; then
-  exit_with_error 3 "Lock file exists: $LOCK_FILE"
-else
-  touch "$LOCK_FILE"
-fi
-
 if [ -r "$LAST_FULL" ]; then
   LAST_FULL_BACKUP_TIME="$(stat -c %Y "$LAST_FULL")"
 else
@@ -53,5 +46,3 @@ else
   echo "Doing WAL backup"
   do_wal_backup
 fi
-
-rm -f "$LOCK_FILE"
