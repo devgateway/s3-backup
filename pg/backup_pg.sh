@@ -1,6 +1,7 @@
 #!/bin/sh -e
 # Back up Postgres to S3 bucket
-# Usage: $0 [base]
+# Usage: $0 [WAL_DIR]
+
 exit_with_error() {
   local RET=$1
   shift
@@ -41,19 +42,32 @@ estimate_size() {
 }
 
 do_base_backup() {
+  pg_basebackup --wal-method=none --format=tar --pgdata=-
 }
 
 do_wal_backup() {
+  tar -b $BLOCKING_FACTOR -cC "$1" --warning=no-file-changed --warning=no-file-removed
+}
+
+s3_upload() {
+  local S3_URL="s3://$S3_BUCKET_NAME/$(echo "$S3_PATH" | s3_escape)"
+  gzip | aws s3 cp - "$S3_URL" --expected-size "$1" --quiet
 }
 
 check_vars S3_BUCKET_NAME
 
-if [ "$1" = "base" ]; then
-  echo "Doing base backup"
-  do_base_backup
-else
-  echo "Doing WAL backup"
+: ${FILE_NAME_PATTERN:=%F_%T}
+S3_FILE_NAME="$(date "+$FILE_NAME_PATTERN").tar.gz"
+
+if [ -n "$1" ]; then
+  echo "Doing WAL backup from $1"
+  SIZE="$(estimate_size "$1")"
   TIMESTAMP="$(mktemp)"
   trap "rm -f '$TIMESTAMP'" EXIT
-  do_wal_backup
+  do_wal_backup "$1" | s3_upload "$SIZE"
+  find "$1" -type f ! -newer "$TIMESTAMP" -delete
+else
+  echo "Doing base backup"
+  SIZE="$(estimate_size "$1")"
+  do_base_backup | s3_upload "$SIZE"
 fi
