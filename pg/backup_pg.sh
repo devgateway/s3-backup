@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # Back up Postgres to S3 bucket
-# Usage: $0 [WAL_DIR]
+# Usage: $0 base|wal
 
 exit_with_error() {
   local RET=$1
@@ -58,13 +58,14 @@ check_vars S3_BUCKET_NAME
 
 : ${S3_FILE_NAME:=%F_%T.tar.gz}
 
-if [ -n "$1" ]; then
-  echo "Doing WAL backup from $1"
-  SIZE="$(estimate_size "$1")"
+if [ "${1,,}" = "wal" ]; then
+  check_vars WAL_DIR
+  echo "Doing WAL backup from $WAL_DIR"
+  SIZE="$(estimate_size "$WAL_DIR")"
   TIMESTAMP="$(mktemp)"
   trap "rm -f '$TIMESTAMP'" EXIT
-  do_wal_backup "$1" | s3_upload "$SIZE"
-  find "$1" -type f ! -newer "$TIMESTAMP" -delete
+  do_wal_backup "$WAL_DIR" | s3_upload "$SIZE"
+  find "$WAL_DIR" -type f ! -newer "$TIMESTAMP" -delete
 else
   echo "Doing base backup"
   DATA_DIR="$(psql -Atc "SELECT setting FROM pg_settings WHERE name = 'data_directory'")"
