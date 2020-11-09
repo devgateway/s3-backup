@@ -58,7 +58,12 @@ check_vars S3_BUCKET_NAME
 
 : ${S3_FILE_NAME:=%F_%T.tar.gz}
 
-if [ "${1,,}" = "wal" ]; then
+if [ "$1" = "base" ]; then
+  echo "Doing base backup"
+  DATA_DIR="$(psql -Atc "SELECT setting FROM pg_settings WHERE name = 'data_directory'")"
+  SIZE="$(estimate_size "$DATA_DIR")"
+  do_base_backup | s3_upload "$SIZE"
+else
   check_vars WAL_DIR
   echo "Doing WAL backup from $WAL_DIR"
   SIZE="$(estimate_size "$WAL_DIR")"
@@ -66,9 +71,4 @@ if [ "${1,,}" = "wal" ]; then
   trap "rm -f '$TIMESTAMP'" EXIT
   do_wal_backup "$WAL_DIR" | s3_upload "$SIZE"
   find "$WAL_DIR" -type f ! -newer "$TIMESTAMP" -delete
-else
-  echo "Doing base backup"
-  DATA_DIR="$(psql -Atc "SELECT setting FROM pg_settings WHERE name = 'data_directory'")"
-  SIZE="$(estimate_size "$DATA_DIR")"
-  do_base_backup | s3_upload "$SIZE"
 fi
