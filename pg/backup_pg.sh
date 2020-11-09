@@ -67,6 +67,7 @@ if [ -n "$1" ]; then
   find "$1" -type f ! -newer "$TIMESTAMP" -delete
 else
   echo "Doing base backup"
-  SIZE="$(estimate_size "$1")"
+  DATA_DIR="$(psql -Atc "SELECT setting FROM pg_settings WHERE name = 'data_directory'")"
+  SIZE="$(estimate_size "$DATA_DIR")"
   do_base_backup | s3_upload "$SIZE"
 fi
