@@ -50,14 +50,13 @@ do_wal_backup() {
 }
 
 s3_upload() {
-  local S3_URL="s3://$S3_BUCKET_NAME/$S3_PREFIX$(echo "$S3_FILE_NAME" | s3_escape)"
+  local S3_URL="s3://$S3_BUCKET_NAME/$(date "+$S3_FILE_NAME" | s3_escape)"
   gzip | aws s3 cp - "$S3_URL" --expected-size "$1" --quiet
 }
 
 check_vars S3_BUCKET_NAME
 
-: ${FILE_NAME_PATTERN:=%F_%T}
-S3_FILE_NAME="$(date "+$FILE_NAME_PATTERN").tar.gz"
+: ${S3_FILE_NAME:=%F_%T.tar.gz}
 
 if [ -n "$1" ]; then
   echo "Doing WAL backup from $1"
