@@ -4,17 +4,18 @@ INSTALL_DATA = $(INSTALL) -m 644
 INSTALL_DIR = $(INSTALL) -d
 
 prefix := /usr/local
-bindir = $(prefix)/bin
+bindir = /bin
 unit_dir = /etc/systemd/system
 
-SERVICE_UNITS = $(wildcard *.service)
-TIMER_UNITS = $(wildcard *.timer)
-FRAGMENT_DIRS = $(wildcard *.d)
+UNITS = $(wildcard *.timer *.service)
 FRAGMENTS = $(wildcard *.d/*.conf)
 
+.PHONY: install
+
 install:
-	$(INSTALL_DIR) $(bindir) $(addprefix $(prefix)$(unit_dir)/,$(FRAGMENT_DIRS))
-	$(INSTALL_PROGRAM) backup_pg.sh $(DESTDIR)$(bindir)
+	$(INSTALL_DIR) $(DESTDIR)$(prefix)$(bindir) $(addprefix $(DESTDIR)$(unit_dir)/,$(dir $(FRAGMENTS)))
+	$(INSTALL_PROGRAM) backup_pg.sh $(DESTDIR)$(prefix)$(bindir)
+	$(INSTALL_DATA) $(UNITS) $(DESTDIR)$(unit_dir)
 	for frag in $(FRAGMENTS); do \
-	  $(INSTALL_DATA) $$frag $(prefix)$(unit_dir)/$$frag; \
+	  $(INSTALL_DATA) $$frag $(DESTDIR)$(unit_dir)/$$frag; \
 	done
