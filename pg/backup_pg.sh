@@ -45,7 +45,7 @@ do_base_backup() {
 }
 
 do_wal_backup() {
-  tar -b $BLOCKING_FACTOR -cC "$1" --warning=no-file-changed --warning=no-file-removed
+  tar -b $BLOCKING_FACTOR -cC "$1" --warning=no-file-changed --warning=no-file-removed .
 }
 
 s3_upload() {
