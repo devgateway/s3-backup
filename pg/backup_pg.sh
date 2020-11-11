@@ -50,7 +50,7 @@ do_wal_backup() {
 }
 
 s3_upload() {
-  local S3_URL="s3://$S3_BUCKET_NAME/$(date "+$S3_FILE_NAME" | s3_escape)"
+  local S3_URL="s3://$S3_BUCKET_NAME/$S3_PREFIX$(date "+$S3_FILE_NAME" | s3_escape)"
   gzip | aws s3 cp - "$S3_URL" --expected-size "$1" --quiet
 }
 
