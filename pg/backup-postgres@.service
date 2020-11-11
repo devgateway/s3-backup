@@ -4,4 +4,4 @@ Description=Postgres %I backup to S3
 [Service]
 User=postgres
 Type=oneshot
-ExecStart=/usr/local/bin/backup_pg.sh %i
+ExecStart=/usr/local/bin/backup-postgres.sh %i
