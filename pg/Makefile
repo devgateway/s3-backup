@@ -11,7 +11,7 @@ UNITS = $(wildcard *.timer *.service)
 FRAGMENTS = $(wildcard *.d/*.conf)
 FRAGMENT_DIRS = $(addprefix $(DESTDIR)$(unit_dir)/,$(sort $(dir $(FRAGMENTS))))
 
-.PHONY: install
+.PHONY: install uninstall
 
 install:
 	$(INSTALL_DIR) $(DESTDIR)$(prefix)$(bindir) $(FRAGMENT_DIRS)
@@ -20,3 +20,7 @@ install:
 	for frag in $(FRAGMENTS); do \
 	  $(INSTALL_DATA) $$frag $(DESTDIR)$(unit_dir)/$$frag; \
 	done
+
+uninstall:
+	rm -rf $(FRAGMENT_DIRS)
+	rm -f $(addprefix $(DESTDIR),$(prefix)$(bindir)/backup_pg.sh $(addprefix $(unit_dir)/,$(UNITS)))
