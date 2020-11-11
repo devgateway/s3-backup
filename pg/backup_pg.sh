@@ -30,15 +30,14 @@ estimate_size() {
   local HEADER_BLOCKS="$(find "$1" -mindepth 1 -printf 1 | wc -c)"
 
   # two zero blocks to mark EOF
-  local BLOCKS=$(("$APPARENT_BLOCKS" + "$HEADER_BLOCKS" + 2))
+  local BLOCKS=$(($APPARENT_BLOCKS + $HEADER_BLOCKS + 2))
 
   # round the blocks up to BLOCKING_FACTOR
-  local BLOCKING_FACTOR=20
-  if [ $(("$BLOCKS" % $BLOCKING_FACTOR)) -ne 0 ]; then
-    BLOCKS="$((("$BLOCKS" / $BLOCKING_FACTOR + 1) * $BLOCKING_FACTOR))"
+  if [ $(($BLOCKS % $BLOCKING_FACTOR)) -ne 0 ]; then
+    BLOCKS="$((($BLOCKS / $BLOCKING_FACTOR + 1) * $BLOCKING_FACTOR))"
   fi
 
-  echo "$(("$BLOCKS" * $BLOCK_SIZE))"
+  echo "$(($BLOCKS * $BLOCK_SIZE))"
 }
 
 do_base_backup() {
@@ -57,6 +56,7 @@ s3_upload() {
 check_vars S3_BUCKET_NAME
 
 : ${S3_FILE_NAME:=%F_%T.tar.gz}
+: ${BLOCKING_FACTOR:=20}
 
 if [ "$1" = "base" ]; then
   echo "Doing base backup"
