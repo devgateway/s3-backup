@@ -9,11 +9,12 @@ unit_dir = /etc/systemd/system
 
 UNITS = $(wildcard *.timer *.service)
 FRAGMENTS = $(wildcard *.d/*.conf)
+FRAGMENT_DIRS = $(addprefix $(DESTDIR)$(unit_dir)/,$(sort $(dir $(FRAGMENTS))))
 
 .PHONY: install
 
 install:
-	$(INSTALL_DIR) $(DESTDIR)$(prefix)$(bindir) $(addprefix $(DESTDIR)$(unit_dir)/,$(dir $(FRAGMENTS)))
+	$(INSTALL_DIR) $(DESTDIR)$(prefix)$(bindir) $(FRAGMENT_DIRS)
 	$(INSTALL_PROGRAM) backup_pg.sh $(DESTDIR)$(prefix)$(bindir)
 	$(INSTALL_DATA) $(UNITS) $(DESTDIR)$(unit_dir)
 	for frag in $(FRAGMENTS); do \
