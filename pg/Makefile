@@ -15,3 +15,6 @@ FRAGMENTS = $(wildcard *.d/*.conf)
 install:
 	$(INSTALL_DIR) $(bindir) $(addprefix $(prefix)$(unit_dir)/,$(FRAGMENT_DIRS))
 	$(INSTALL_PROGRAM) backup_pg.sh $(DESTDIR)$(bindir)
+	for frag in $(FRAGMENTS); do \
+	  $(INSTALL_DATA) $$frag $(prefix)$(unit_dir)/$$frag; \
+	done
