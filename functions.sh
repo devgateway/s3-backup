@@ -1,5 +1,3 @@
-TAR_BLOCKING_FACTOR=20
-
 # desc:         Print to stderr, exit with RC
 # stdin:        none
 # stdout:       none
@@ -51,8 +49,9 @@ estimate_size() {
   local BLOCKS=$(($APPARENT_BLOCKS + $HEADER_BLOCKS + 2))
 
   # round the blocks up to TAR_BLOCKING_FACTOR
-  if [ $(($BLOCKS % $TAR_BLOCKING_FACTOR)) -ne 0 ]; then
-    BLOCKS="$((($BLOCKS / $TAR_BLOCKING_FACTOR + 1) * $TAR_BLOCKING_FACTOR))"
+  local TBF=${TAR_BLOCKING_FACTOR:-20}
+  if [ $(($BLOCKS % $TBF)) -ne 0 ]; then
+    BLOCKS="$((($BLOCKS / $TBF + 1) * $TBF))"
   fi
 
   echo "$(($BLOCKS * $BLOCK_SIZE))"
@@ -67,4 +66,15 @@ s3_upload_stdin() {
   aws s3 cp - "s3://$S3_BUCKET_NAME/$S3_PREFIX$(date "+$1" | s3_escape)" \
     --expected-size "$2" \
     --quiet
+}
+
+# desc:         Archive directory in gzipped tar format
+# stdin:        none
+# stdout:       data
+# expect vars:  none
+# args:         path [--tar_extra_arg...]
+archive_dir() {
+  local DIR="$1"
+  shift
+  tar -cC "$DIR" -b ${TAR_BLOCKING_FACTOR:-20} $@ . | gzip
 }
