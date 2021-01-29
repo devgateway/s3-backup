@@ -1,48 +1,41 @@
-PREFIX:=/usr/local
+INSTALL := install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA = $(INSTALL) -m 644
+INSTALL_DIR = $(INSTALL) -d
 
-# function library goes here
-LIBDIR=$(PREFIX)/lib/s3_backup
-
-# backup scripts go here
-BINDIR=$(LIBDIR)
-
-# Systemd timers and services go here, at /etc or /usr/lib
-UNITDIR:=/etc/systemd/system
-
-# temporary dir for scripts with absolute paths in them
-BUILDDIR:=dist
-
-# overridable install binaries defined
-INSTALL:=install
-INSTALL_PROGRAM=$(INSTALL)
-INSTALL_DATA=$(INSTALL) -m 644
+prefix := /usr/local
+bindir = $(prefix)/bin
+libdir = $(prefix)/lib/s3_backup
+unit_dir := /etc/systemd/system
 
 # scripts and units
-SCRIPTS=$(filter-out functions.sh,$(wildcard *.sh))
-SERVICES=$(wildcard *.service)
-TIMERS=$(wildcard *.timer)
+SCRIPTS=$(wildcard */*.sh)
+SERVICES=$(wildcard */*.service)
+TIMERS=$(wildcard */*.timer)
 
-.PHONY: all
-all: $(addprefix $(BUILDDIR)/,$(SCRIPTS) $(SERVICES))
+.PHONY: all install uninstall clean
 
-.PHONY: install
+all: $(addsuffix .dist,$(SCRIPTS) $(SERVICES))
+
 install: | all
-	$(INSTALL) -d $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) functions.sh $(DESTDIR)$(LIBDIR)/
-	$(INSTALL_PROGRAM) $(addprefix $(BUILDDIR)/,$(SCRIPTS)) $(DESTDIR)$(BINDIR)/
-	$(INSTALL) -d $(DESTDIR)$(UNITDIR)
-	$(INSTALL_DATA) $(addprefix $(BUILDDIR)/,$(SERVICES)) $(DESTDIR)$(UNITDIR)/
-	$(INSTALL_DATA) *.timer $(DESTDIR)$(UNITDIR)/
+	$(INSTALL) -d \
+	  $(DESTDIR)$(bindir) \
+	  $(DESTDIR)$(libdir) \
+	  $(DESTDIR)$(unitdir)
+	$(INSTALL_DATA) functions.sh $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) $(TIMERS) $(DESTDIR)$(unitdir)/
+	for svc in $(SERVICES); do \
+	  $(INSTALL_DATA) $$svc.dist $(DESTDIR)$(unit_dir)/$$svc; \
+	done
+	for scr in $(SERVICES); do \
+	  $(INSTALL_PROGRAM) $$scr.dist $(DESTDIR)$(unit_dir)/$$scr; \
+	done
 
-$(BUILDDIR):
-	-mkdir $(BUILDDIR)
+%.service.dist: %.service
+	sed -e '/^ExecStart/ s!\([^=[:space:]]\+\.sh\)!$(bindir)/\1!g' $< > $@
 
-$(BUILDDIR)/%.sh: %.sh | $(BUILDDIR)
-	sed -e 's|[^[:space:]]*\(functions\.sh\)$$|$(LIBDIR)/\1|g' $< > $@
+%.sh.dist: %.sh
+	sed -e 's![^[:space:]]*\(functions\.sh\)$$!$(libdir)/\1!g' $< > $@
 
-$(BUILDDIR)/%.service: %.service | $(BUILDDIR)
-	sed -e 's|\([^=[:space:]]\+\.sh\)|$(BINDIR)/\1|g' $< > $@
-
-.PHONY: clean
 clean:
-	-rm -rf $(BUILDDIR)
+	-rm -f */*.dist
