@@ -34,7 +34,7 @@ s3_escape() {
 
 # desc:         Estimate size of TAR archive
 # stdin:        none
-# stdout:       none
+# stdout:       size_bytes
 # expect vars:  none
 # args:         path
 estimate_size() {
