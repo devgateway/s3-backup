@@ -1,8 +1,0 @@
-[Unit]
-Description=Postgres %I backup to S3
-
-[Service]
-User=postgres
-Type=oneshot
-ExecStart=/usr/local/bin/backup-postgres.sh %i
-EnvironmentFile=/etc/backup-s3.conf
