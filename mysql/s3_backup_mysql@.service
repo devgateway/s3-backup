@@ -5,7 +5,7 @@ After=network-online.target
 Requisite=mysql.service
 
 [Service]
-User=root
+User=mysql
 Type=oneshot
 ExecStart=s3_backup_mysql.sh %I
 EnvironmentFile=../s3_backup.conf
