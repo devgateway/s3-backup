@@ -1,7 +1,9 @@
 [Unit]
 Description=Directory %f backup to S3
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=oneshot
 ExecStart=s3_backup_dir.sh %f
+EnvironmentFile=../s3_backup.conf

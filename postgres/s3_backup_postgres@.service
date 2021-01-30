@@ -1,9 +1,11 @@
 [Unit]
-Description=Postgresql DB %I backup to S3
-After=network.target
-Requisite=mysql.service
+Description=PostgreSQL %I backup to S3
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-User=root
+User=postgres
 Type=oneshot
 ExecStart=s3_backup_postgres.sh %I
+EnvironmentFile=../s3_backup.conf
+Environment=WAL_DIR=/var/spool/postgresql
