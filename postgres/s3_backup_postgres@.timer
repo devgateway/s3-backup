@@ -1,5 +1,5 @@
 [Unit]
-Description=Back up Postgres DB %I to S3
+Description=Back up Postgres %I to S3
 
 [Install]
 WantedBy=timers.target
