@@ -9,23 +9,23 @@ confdir = $(prefix)/etc
 libdir = $(prefix)/lib/s3_backup
 unitdir := /etc/systemd/system
 
-# scripts and units
 SCRIPTS=$(wildcard */*.sh)
 SERVICES=$(wildcard */*.service)
 TIMERS=$(wildcard */*.timer)
+CONF_FILE=$(wildcard *.conf)
 
 .PHONY: all install uninstall clean
 
 all: $(addsuffix .dist,$(SCRIPTS) $(SERVICES))
 
 install: | all
-	$(INSTALL) -d \
+	$(INSTALL_DIR) \
 	  $(DESTDIR)$(bindir) \
 	  $(DESTDIR)$(libdir) \
 	  $(DESTDIR)$(confdir) \
 	  $(DESTDIR)$(unitdir)
 	$(INSTALL_DATA) functions.sh $(DESTDIR)$(libdir)
-	$(INSTALL_DATA) *.conf $(DESTDIR)$(confdir)
+	$(INSTALL_DATA) $(CONF_FILE) $(DESTDIR)$(confdir)
 	$(INSTALL_DATA) $(TIMERS) $(DESTDIR)$(unitdir)/
 	for svc in $(SERVICES); do \
 	  $(INSTALL_DATA) $$svc.dist $(DESTDIR)$(unitdir)/$${svc##*/}; \
@@ -35,10 +35,13 @@ install: | all
 	done
 
 %.service.dist: %.service
-	sed -e '/^ExecStart/ s!\([^=[:space:]]\+\.sh\)!$(bindir)/\1!g' $< > $@
+	sed \
+	  -e '/^ExecStart/ s!\([^=[:space:]]\+\.sh\)!$(bindir)/\1!' \
+	  -e '/^EnvironmentFile/ s![^=[:space:]]\+$$!$(confdir)/$(CONF_FILE)!' \
+	  $< > $@
 
 %.sh.dist: %.sh
-	sed -e 's![^[:space:]]*\(functions\.sh\)$$!$(libdir)/\1!g' $< > $@
+	sed -e 's![^[:space:]]*\(functions\.sh\)$$!$(libdir)/\1!' $< > $@
 
 clean:
 	-rm -f */*.dist
