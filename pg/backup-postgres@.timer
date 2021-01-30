@@ -1,5 +1,0 @@
-[Unit]
-Description=Back up Postgres %I to S3
-
-[Install]
-WantedBy=multi-user.target
