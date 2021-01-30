@@ -1,20 +1,15 @@
-#!/bin/sh
-set -e
+#!/bin/sh -e
+# Back up OpenLDAP DB to S3 bucket
+# Usage: $0 DB_NUMBER
+
 . ../functions.sh
 
-if ! check_vars S3_BUCKET_NAME S3_PREFIX 1; then
-  exit 1
-fi
+check_vars S3_BUCKET_NAME 1
 
-SUFFIX=.ldif.gz
-DUMP_FILE="$(umask 077; mktemp --suffix=$SUFFIX)"
+DUMP_FILE="$(umask 077; mktemp)"
+trap "rm -f '$DUMP_FILE'" EXIT
 slapcat -b "$1" | gzip > "$DUMP_FILE"
 
-S3_SUBDIR="$(echo "$1" | s3_escape)"
-S3_PATH="s3://$S3_BUCKET_NAME/$S3_PREFIX/$S3_SUBDIR/$(date +%F_%R)$SUFFIX"
-set +e
-aws s3 cp "$DUMP_FILE" "$S3_PATH" --quiet
-RC=$?
-set -e
-rm -f "$DUMP_FILE"
-exit $RC
+SIZE="$(stat -c %s "$DUMP_FILE")"
+: ${S3_BASE_NAME:=slapd$1-%F_%T.tar.gz}
+s3_upload_stdin "$S3_BASE_NAME" "$SIZE" < "$DUMP_FILE"
