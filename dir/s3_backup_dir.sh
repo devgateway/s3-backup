@@ -1,7 +1,7 @@
 #!/bin/sh -e
 # Back up a directory to S3 bucket
 # Usage: $0 PATH
-. functions.sh
+. ../functions.sh
 
 check_vars S3_BUCKET_NAME 1
 
