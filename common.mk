@@ -8,3 +8,4 @@ bindir = $(prefix)/bin
 confdir = $(prefix)/etc
 libdir = $(prefix)/lib/s3_backup
 unitdir := /etc/systemd/system
+unitdir_usr := /etc/systemd/system

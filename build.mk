@@ -11,7 +11,9 @@ TIMERS=$(wildcard *.timer)
 	  $< > $@
 
 %.sh.dist: %.sh
-	sed -e 's![^[:space:]]*\(functions\.sh\)$$!$(libdir)/\1!' $< > $@
+	sed \
+	  -e 's![^[:space:]]*\(functions\.sh\)$$!$(libdir)/\1!' \
+	  $< > $@
 
 install:: $(addsuffix .dist,$(SCRIPTS) $(SERVICES))
 	$(INSTALL_DATA) $(TIMERS) $(DESTDIR)$(unitdir)/
