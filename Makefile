@@ -5,8 +5,9 @@ INSTALL_DIR = $(INSTALL) -d
 
 prefix := /usr/local
 bindir = $(prefix)/bin
+confdir = $(prefix)/etc
 libdir = $(prefix)/lib/s3_backup
-unit_dir := /etc/systemd/system
+unitdir := /etc/systemd/system
 
 # scripts and units
 SCRIPTS=$(wildcard */*.sh)
@@ -21,14 +22,16 @@ install: | all
 	$(INSTALL) -d \
 	  $(DESTDIR)$(bindir) \
 	  $(DESTDIR)$(libdir) \
+	  $(DESTDIR)$(confdir) \
 	  $(DESTDIR)$(unitdir)
 	$(INSTALL_DATA) functions.sh $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) *.conf $(DESTDIR)$(confdir)
 	$(INSTALL_DATA) $(TIMERS) $(DESTDIR)$(unitdir)/
 	for svc in $(SERVICES); do \
-	  $(INSTALL_DATA) $$svc.dist $(DESTDIR)$(unit_dir)/$$svc; \
+	  $(INSTALL_DATA) $$svc.dist $(DESTDIR)$(unitdir)/$${svc##*/}; \
 	done
-	for scr in $(SERVICES); do \
-	  $(INSTALL_PROGRAM) $$scr.dist $(DESTDIR)$(unit_dir)/$$scr; \
+	for scr in $(SCRIPTS); do \
+	  $(INSTALL_PROGRAM) $$scr.dist $(DESTDIR)$(bindir)/$${scr##*/}; \
 	done
 
 %.service.dist: %.service
