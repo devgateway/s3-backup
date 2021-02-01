@@ -14,18 +14,17 @@ You can set `DESTDIR` variable to change installation root, e.g. for packaging. 
 
 ## Configuration
 
-The file [`s3_backup.conf`](./s3_backup.conf) sets environment shared between all scripts. It defines the path to AWS
-configuration file used by Boto3 (and therefore by AWS CLI and Duplicity).
+The file [`s3_backup.conf`](./s3_backup.conf) sets the environment shared between all scripts. It defines the path to
+AWS configuration file used by Boto3 (and therefore by AWS CLI and Duplicity).
 
-    INI=/etc/aws.ini
     umask 0037
-    test -e $INI || cat >$INI <EOF
+    test -e /etc/aws.ini || cat >/etc/aws.ini <EOF
     [default]
     aws_access_key_id = AKIAXXXXXXXXXXXXXXXX
     aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     region = us-east-1
     EOF
-    chgrp backup $INI
+    chgrp backup /etc/aws.ini
 
 If a backup script runs as a different user, remember to add them to a group that can read the INI file:
 
@@ -35,4 +34,11 @@ If a backup script runs as a different user, remember to add them to a group tha
 You might want to have consistent settings between the backup scripts and AWS CLI in your interactive shell. In that
 case, use a symlink like so:
 
-    mkdir -p ~/.aws; test -f /etc/aws.ini && ln -s /etc/aws.ini ~/.aws/config
+    mkdir -p ~/.aws
+    test -f /etc/aws.ini && ln -s /etc/aws.ini ~/.aws/config
+
+## Extension
+
+Copy the structure of a module, e.g. `slapd`, and make adjustments. You can redeclare the target `install::` (note the
+[double colon](https://www.gnu.org/software/make/manual/make.html#Double_002dColon)) before or after including
+`build.mk`, see [`postgres/Makefile`](postgres/Makefile) for reference.
