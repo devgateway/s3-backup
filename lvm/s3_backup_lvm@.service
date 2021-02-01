@@ -1,0 +1,9 @@
+[Unit]
+Description=LV %f backup to S3
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=s3_backup_lvm.sh %f
+EnvironmentFile=../s3_backup.conf
