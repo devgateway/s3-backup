@@ -9,7 +9,7 @@ SELECT_EXPR="lv_attr=~^s && lv_tags={$TAG}"
 
 create_snapshot() {
 lvcreate \
-  --snapshot "$1" \
+  --snapshot \
   --extents "${LV_EXTENTS:-100%FREE}" \
   --addtag "$TAG" \
   --permission r \
@@ -42,7 +42,7 @@ test -d "$CACHE" || mkdir "$CACHE"
 
 MOUNT_POINT="$(mktemp --directory --tmpdir=/mnt)"
 clear_snapshots
-create_snapshot
+create_snapshot "$1"
 DEV="$(find_snapshots)"
 mount -o ro,noexec "$DEV" "$MOUNT_POINT"
 trap "clear_snapshots; rmdir '$MOUNT_POINT'" EXIT
