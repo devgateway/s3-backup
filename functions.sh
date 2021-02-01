@@ -78,3 +78,5 @@ archive_dir() {
   shift
   tar -cC "$DIR" -b ${TAR_BLOCKING_FACTOR:-20} $@ . | gzip
 }
+
+export AWS_CONFIG_FILE
