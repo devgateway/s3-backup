@@ -4,7 +4,7 @@
 . ../functions.sh
 
 NAME="$(basename "$1" | s3_escape)"
-TAG="$NAME_deleteme"
+TAG="${NAME}_deleteme"
 SELECT_EXPR="lv_attr=~^s && lv_tags={$TAG}"
 
 create_snapshot() {
