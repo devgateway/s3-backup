@@ -60,10 +60,11 @@ estimate_size() {
 # desc:   Upload a stream to S3 file
 # stdin:  data
 # stdout: none
-# env:    S3_BUCKET_NAME [S3_PREFIX=""]
+# env:    S3_BUCKET_NAME [S3_PREFIX=""] [S3_STORAGE_CLASS=STANDARD_IA]
 # args:   base_name_in_date_format expected_size_bytes
 s3_upload_stdin() {
   aws s3 cp - "s3://$S3_BUCKET_NAME/$S3_PREFIX$(date "+$1" | s3_escape)" \
+    --storage-class "${S3_STORAGE_CLASS:-STANDARD_IA}" \
     --expected-size "$2"
 }
 
