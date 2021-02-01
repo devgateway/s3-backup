@@ -1,8 +1,8 @@
-# desc:         Print to stderr, exit with RC
-# stdin:        none
-# stdout:       none
-# expect vars:  none
-# args:         RC message [message...]
+# desc:   Print to stderr, exit with RC
+# stdin:  none
+# stdout: none
+# env:    none
+# args:   RC message [message...]
 exit_with_error() {
   local RET=$1
   shift
@@ -10,11 +10,11 @@ exit_with_error() {
   exit $RET
 }
 
-# desc:         Check that all vars are defined, or exit with error
-# stdin:        none
-# stdout:       none
-# expect vars:  none
-# args:         [var_name...]
+# desc:   Check that all vars are defined, or exit with error
+# stdin:  none
+# stdout: none
+# env:    none
+# args:   [var_name...]
 check_vars() {
   for VAR_NAME in $@; do
     if eval "test -z \"\$$VAR_NAME\""; then
@@ -23,20 +23,20 @@ check_vars() {
   done
 }
 
-# desc:         Replace invalid chars in S3 filename
-# stdin:        file path
-# stdout:       safe file path
-# expect vars:  none
-# args:         none
+# desc:   Replace invalid chars in S3 filename
+# stdin:  base_name
+# stdout: safe_base_name
+# env:    none
+# args:   none
 s3_escape() {
   tr -c "[:alnum:]-_.*'()!\\n" _
 }
 
-# desc:         Estimate size of TAR archive
-# stdin:        none
-# stdout:       size_bytes
-# expect vars:  none
-# args:         path
+# desc:   Estimate size of TAR archive
+# stdin:  none
+# stdout: size_bytes
+# env:    none
+# args:   path
 estimate_size() {
   # ustar format uses 512 B blocks
   local BLOCK_SIZE=512
@@ -57,22 +57,22 @@ estimate_size() {
   echo "$(($BLOCKS * $BLOCK_SIZE))"
 }
 
-# desc:         Upload a stream to S3 file
-# stdin:        data
-# stdout:       none
-# expect vars:  S3_BUCKET_NAME [S3_PREFIX]
-# args:         base_name_in_date_format expected_size_bytes
+# desc:   Upload a stream to S3 file
+# stdin:  data
+# stdout: none
+# env:    S3_BUCKET_NAME [S3_PREFIX=""]
+# args:   base_name_in_date_format expected_size_bytes
 s3_upload_stdin() {
   aws s3 cp - "s3://$S3_BUCKET_NAME/$S3_PREFIX$(date "+$1" | s3_escape)" \
     --expected-size "$2" \
     --quiet
 }
 
-# desc:         Archive directory in gzipped tar format
-# stdin:        none
-# stdout:       data
-# expect vars:  none
-# args:         path [--tar_extra_arg...]
+# desc:   Archive directory in gzipped tar format
+# stdin:  none
+# stdout: data
+# env:    [TAR_BLOCKING_FACTOR=20]
+# args:   path [--tar_extra_arg...]
 archive_dir() {
   local DIR="$1"
   shift
