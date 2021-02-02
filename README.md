@@ -42,3 +42,7 @@ case, use a symlink like so:
 Copy the structure of a module, e.g. `slapd`, and make adjustments. You can redeclare the target `install::` (note the
 [double colon](https://www.gnu.org/software/make/manual/make.html#Double_002dColon)) before or after including
 `build.mk`, see [`postgres/Makefile`](postgres/Makefile) for reference.
+
+## See Also
+
+* [LVM](./lvm/README.md)

@@ -3,8 +3,9 @@
 # Usage: $0 LV_PATH
 . ../functions.sh
 
-NAME="$(basename "$1" | s3_escape)"
-TAG="${NAME}_deleteme"
+: ${JOB_NAME:=$(basename "$1" | s3_escape)}
+: ${DUPLICITY_CACHE:=/var/cache/duplicity}
+TAG="${JOB_NAME}_deleteme"
 SELECT_EXPR="lv_attr=~^s && lv_tags={$TAG}"
 
 create_snapshot() {
@@ -37,8 +38,7 @@ clear_snapshots() {
 check_vars S3_BUCKET_NAME 1
 
 test -b "$1" || exit_with_error 10 "$1 is not a block device"
-CACHE=/var/cache/duplicity
-test -d "$CACHE" || mkdir "$CACHE"
+test -d "$DUPLICITY_CACHE" || mkdir "$DUPLICITY_CACHE"
 
 MOUNT_POINT="$(mktemp --directory --tmpdir=/mnt)"
 clear_snapshots
@@ -48,8 +48,8 @@ mount -o ro,noexec "$DEV" "$MOUNT_POINT"
 trap "clear_snapshots; rmdir '$MOUNT_POINT'" EXIT
 
 eval "duplicity \
-  --archive-dir '$CACHE' \
-  --name '$NAME' \
+  --archive-dir '$DUPLICITY_CACHE' \
+  --name '$JOB_NAME' \
   --full-if-older-than '${FULL_IF_OLDER_THAN:-1M}' \
   ${DUPLICITY_OPTIONS:---no-encryption --s3-use-ia} \
   --exclude '$MOUNT_POINT/lost+found' \
