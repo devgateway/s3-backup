@@ -53,4 +53,11 @@ eval "duplicity \
   --full-if-older-than '${FULL_IF_OLDER_THAN:-1M}' \
   ${DUPLICITY_OPTIONS:---no-encryption --s3-use-ia} \
   --exclude '$MOUNT_POINT/lost+found' \
+  --allow-source-mismatch \
   '$MOUNT_POINT' 'boto3+s3://$S3_BUCKET_NAME/$S3_PREFIX'"
+
+eval "duplicity \
+  --archive-dir '$CACHE' \
+  --name '$NAME' \
+  remove-older-than '${REMOVE_OLDER_THAN:-6M}' --force \
+  'boto3+s3://$S3_BUCKET_NAME/$S3_PREFIX'"

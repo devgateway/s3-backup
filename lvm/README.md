@@ -75,3 +75,9 @@ Default: `100%FREE`
 
 Create a snapshot of this size. If it's greater than the origin volume, LVM will automatically limit it. Be sure to make
 the snapshot big enough to accomodate for CoW changes.
+
+### `REMOVE_OLDER_THAN`
+
+Default: `6M`
+
+Purge backups older than this period, see *duplicity(8)*.
