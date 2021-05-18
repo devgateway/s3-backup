@@ -18,7 +18,7 @@ The file [`s3_backup.conf`](./s3_backup.conf) sets the environment shared betwee
 AWS configuration file used by Boto3 (and therefore by AWS CLI and Duplicity).
 
     umask 0037
-    test -e /etc/aws.ini || cat >/etc/aws.ini <EOF
+    test -e /etc/aws.ini || cat >/etc/aws.ini <<EOF
     [default]
     aws_access_key_id = AKIAXXXXXXXXXXXXXXXX
     aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
