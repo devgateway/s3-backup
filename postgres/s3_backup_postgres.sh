@@ -11,7 +11,7 @@ if [ "$1" = "base" ]; then
   : ${S3_BASE_NAME:=base-%F_%T.tar.gz}
   DATA_DIR="$(psql -Atc "SELECT setting FROM pg_settings WHERE name = 'data_directory'")"
   SIZE="$(estimate_size "$DATA_DIR")"
-  pg_basebackup --wal-method=none --format=tar --pgdata=- | gzip \
+  pg_basebackup --write-recovery-conf --wal-method=none --format=tar --pgdata=- | gzip \
     | s3_upload_stdin "$S3_BASE_NAME" "$SIZE"
 else
   check_vars WAL_DIR
