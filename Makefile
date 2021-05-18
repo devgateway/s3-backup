@@ -1,8 +1,15 @@
 include common.mk
+TARBALL:=s3-backup.tgz
 CONF_FILE=$(wildcard *.conf)
 export DESTDIR CONF_FILE
 
 .PHONY: install uninstall clean
+
+$(TARBALL):
+	DIR="$$(mktemp -d)"; \
+	$(MAKE) DESTDIR="$$DIR" confdir=/etc install && \
+	tar -caf "$@" -C "$$DIR" . && \
+	rm -rf "$$DIR"
 
 install:
 	$(INSTALL_DIR) \
@@ -20,3 +27,4 @@ clean:
 	for dir in $(dir $(wildcard */Makefile)); do \
 	  $(MAKE) -C $$dir $@; \
 	done
+	rm -f "$(TARBALL)"
