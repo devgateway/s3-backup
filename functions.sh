@@ -79,4 +79,15 @@ archive_dir() {
   tar -cC "$DIR" -b ${TAR_BLOCKING_FACTOR:-20} $@ . | gzip
 }
 
+# desc:   Create directories if they don't exist
+# stdin:  none
+# stdout: none
+# env:    none
+# args:   [PATH...]
+create_dirs() {
+  for DIR in $@; do
+    test -d "$DIR" || mkdir -p "$DIR"
+  done
+}
+
 export AWS_CONFIG_FILE

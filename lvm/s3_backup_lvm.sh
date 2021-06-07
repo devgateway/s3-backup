@@ -38,7 +38,7 @@ clear_snapshots() {
 check_vars S3_BUCKET_NAME 1
 
 test -b "$1" || exit_with_error 10 "$1 is not a block device"
-test -d "$DUPLICITY_CACHE" || mkdir "$DUPLICITY_CACHE"
+create_dirs "$DUPLICITY_CACHE"
 
 MOUNT_POINT="$(mktemp --directory --tmpdir=/mnt)"
 clear_snapshots
