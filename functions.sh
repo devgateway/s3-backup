@@ -83,11 +83,27 @@ archive_dir() {
 # stdin:  none
 # stdout: none
 # env:    none
-# args:   [PATH...]
+# args:   [path...]
 create_dirs() {
   for DIR in $@; do
     test -d "$DIR" || mkdir -p "$DIR"
   done
+}
+
+# desc:   Create a lock file, or return error if it exists
+# stdin:  none
+# stdout: path - the lock file
+# env:    none
+# args:   name
+acquire_lock() {
+  local LOCK_FILE="/run/$1.lock"
+  if [ -e "$LOCK_FILE" ]; then
+    echo "Error: lock file '$LOCK_FILE' exists" >&2
+    return 1
+  else
+    touch "$LOCK_FILE"
+    echo "$LOCK_FILE"
+  fi
 }
 
 export AWS_CONFIG_FILE
