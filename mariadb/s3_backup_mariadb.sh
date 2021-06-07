@@ -43,9 +43,28 @@ else
   JOB_TYPE=incr
 fi
 
+# set paths and args
 if [ "$JOB_TYPE" = "full" ]; then
   TARGET_DIR="$TEMP_ROOT/full"
+  FIND_EXTRA_ARGS="! -path \"$LAST_BACKUP_DIR*\""
 else
   TARGET_DIR="$TEMP_ROOT/$(get_incr_subdir)"
+  MARIABACKUP_EXTRA_ARGS="--incremental-dir=\"$LAST_BACKUP_DIR\""
 fi
-create_dirs "$TEMP_ROOT"
+
+# clean up old backups
+eval find \"$TEMP_ROOT\" -mindepth 1 $FIND_EXTRA_ARGS -delete
+
+# run backup
+create_dirs "$TARGET_DIR"
+eval mariabackup --backup --target-dir=\"$TARGET_DIR\" $MARIABACKUP_EXTRA_ARGS
+
+# upload to S3
+S3_BASE_NAME="$(basename "$TARGET_DIR" | s3_escape).tar.gz"
+SIZE="$(estimate_size "$TARGET_DIR")"
+archive_dir "$TARGET_DIR" | s3_upload_stdin "$S3_BASE_NAME" "$SIZE"
+
+# clean up, but keep metadata
+find "$TARGET_DIR" -type f \
+  -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl|ibd\)$' \
+  -delete
