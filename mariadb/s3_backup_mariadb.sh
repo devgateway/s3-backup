@@ -15,24 +15,26 @@ get_last_backup_dir() {
     | head -n 1
 }
 
-get_next_backup_dir() {
+get_incr_subdir() {
   local POS=4 INDEX WITH_ZEROES
-  if [ -z "$1" ]; then
+  WITH_ZEROES=$(echo "$1" | grep -o '[[:digit:]]\{'$POS'\}$')
+  if [ -z "$WITH_ZEROES" ]; then
     INDEX=0
   else
-    WITH_ZEROES=$(echo "$1" | grep -o '[[:digit:]]\{'$POS'\}$')
     INDEX=$((10#$WITH_ZEROES + 1))
     if [ ${#INDEX} -gt $POS ]; then
       echo "Index $INDEX is over $POS decimal digits" >&2
       return 1
     fi
   fi
-  printf "%0${POS}d" $INDEX
+  printf "incr-%0${POS}d" $INDEX
 }
 
+# ensure single instance running
 LOCK="$(acquire_lock "$SCRIPT")"
 trap "rm -f '$LOCK'" EXIT
 
+# check if incremental backup possible
 LAST_BACKUP_DIR="$(get_last_backup_dir)"
 if [ "$1" != "full" -a -z "$LAST_BACKUP_DIR" ]; then
   JOB_TYPE=full
@@ -44,5 +46,6 @@ fi
 if [ "$JOB_TYPE" = "full" ]; then
   TARGET_DIR="$TEMP_ROOT/full"
 else
+  TARGET_DIR="$TEMP_ROOT/$(get_incr_subdir)"
 fi
 create_dirs "$TEMP_ROOT"
