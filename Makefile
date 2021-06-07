@@ -7,8 +7,9 @@ export DESTDIR CONF_FILE
 
 $(TARBALL):
 	DIR="$$(mktemp -d)"; \
+	chmod 0755 "$$DIR" && \
 	$(MAKE) DESTDIR="$$DIR" confdir=/etc install && \
-	tar -caf "$@" -C "$$DIR" . && \
+	tar --owner=root --group=root -caf "$@" -C "$$DIR" . && \
 	rm -rf "$$DIR"
 
 install:
