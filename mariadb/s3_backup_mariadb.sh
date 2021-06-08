@@ -10,8 +10,8 @@ SCRIPT=s3_backup_mariadb
 : ${TEMP_ROOT:=/var/spool/$SCRIPT}
 
 get_last_backup_dir() {
-  find "$TEMP_ROOT" -maxdepth 1 -mindepth 1 -type d -print0 \
-    | xargs -0 ls -1dt \
+  find "$TEMP_ROOT" -maxdepth 1 -mindepth 1 -type d ! -name lost+found -print0 \
+    | xargs -r0 ls -1dt \
     | head -n 1
 }
 
