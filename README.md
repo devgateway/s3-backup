@@ -46,3 +46,7 @@ Copy the structure of a module, e.g. `slapd`, and make adjustments. You can rede
 ## See Also
 
 * [LVM](./lvm/README.md)
+
+## Copyright
+
+2019-2021, Development Gateway, GPLv3+, see COPYING.
