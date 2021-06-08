@@ -66,5 +66,5 @@ archive_dir "$TARGET_DIR" | s3_upload_stdin "$S3_BASE_NAME" "$SIZE"
 
 # clean up, but keep metadata
 find "$TARGET_DIR" -type f \
-  -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl|ibd\)$' \
+  -iregex '.*\.\([mt]rg\|cs[mv]\|par\|trn\|opt\|arz\|[af]rm\|m[ay][di]\|isl\|ibd\)$' \
   -delete
