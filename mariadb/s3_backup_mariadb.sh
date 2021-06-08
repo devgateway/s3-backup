@@ -15,13 +15,13 @@ get_last_backup_dir() {
     | head -n 1
 }
 
-get_incr_subdir() {
-  local POS=4 INDEX WITH_ZEROES
-  WITH_ZEROES=$(echo "$1" | grep -o '[[:digit:]]\{'$POS'\}$')
-  if [ -z "$WITH_ZEROES" ]; then
+get_next_backup_dir() {
+  local POS=4 INDEX
+  INDEX="$(set +e; echo "$1" | grep -o '[[:digit:]]\{'$POS'\}')"
+  if [ -z "$INDEX" ]; then
     INDEX=0
   else
-    INDEX=$((10#$WITH_ZEROES + 1))
+    INDEX=$(("$(echo "$INDEX" | sed 's/^0\+//')" + 1))
     if [ ${#INDEX} -gt $POS ]; then
       echo "Index $INDEX is over $POS decimal digits" >&2
       return 1
@@ -40,15 +40,15 @@ if [ "$1" != "full" -a -z "$LAST_BACKUP_DIR" ]; then
   JOB_TYPE=full
   echo "No previous backup found; forcing full backup" >&2
 else
-  JOB_TYPE=incr
+  JOB_TYPE="$1"
 fi
 
 # set paths and args
 if [ "$JOB_TYPE" = "full" ]; then
   TARGET_DIR="$TEMP_ROOT/full"
-  FIND_EXTRA_ARGS="! -path \"$LAST_BACKUP_DIR*\""
 else
-  TARGET_DIR="$TEMP_ROOT/$(get_incr_subdir)"
+  TARGET_DIR="$TEMP_ROOT/$(get_next_backup_dir "$LAST_BACKUP_DIR")"
+  FIND_EXTRA_ARGS="! -path \"$LAST_BACKUP_DIR*\""
   MARIABACKUP_EXTRA_ARGS="--incremental-dir=\"$LAST_BACKUP_DIR\""
 fi
 
