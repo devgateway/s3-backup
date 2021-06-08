@@ -1,0 +1,8 @@
+[Unit]
+Description=Back up MariaDB level %I to S3
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+AccuracySec=1h

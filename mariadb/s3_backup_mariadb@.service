@@ -1,0 +1,10 @@
+[Unit]
+Description=MariaDB %I backup to S3
+BindsTo=mariadb.service
+After=mariadb.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=s3_backup_mariadb.sh %I
+EnvironmentFile=../s3_backup.conf
